@@ -3,7 +3,7 @@ package services
 import java.util.logging.Logger
 import database.mongo.MongoHelper
 import play.api.libs.json.JsValue
-
+import scala.collection.mutable
 
 /**
   * Created by Pierre on 02/07/16.
@@ -50,7 +50,7 @@ object ProjectsService {
     * @param filters fields to filter the result
     * @return projects matching with the specified filters
     */
-  def getProjects (filters : JsValue) : JsValue = {
+  def getProjects (filters : JsValue) : mutable.Set[JsValue] = {
     logger.info("get_projects request / Data :" + filters)
     MongoHelper.getProjects(filters)
   }

@@ -5,6 +5,7 @@ import java.util.logging.Logger
 import com.rabbitmq.client.{AMQP, _}
 import play.api.libs.json.{JsValue, Json}
 import services.ProjectsService
+import monitoring.ProjectMonitoring
 
 /**
   * Created by Pierre on 02/07/16.
@@ -66,6 +67,8 @@ object Functions {
           case "delete_project" => ProjectsService.deleteProject(parsedMessage).toString()
           case "get_project" => ProjectsService.getProject(parsedMessage).toString()
           case "get_projects" => ProjectsService.getProjects(parsedMessage).toString()
+          case "health_projects"  => ProjectMonitoring.health()
+          case "metrics_projects"  => ProjectMonitoring.metrics()
           case _ => "You shouldn't pass ! "
         }
         channel.basicPublish( "", properties.getReplyTo, replyToProps, valueToReturn.getBytes())

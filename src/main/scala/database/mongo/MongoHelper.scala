@@ -1,19 +1,21 @@
 package database.mongo
 
 import java.util.logging.Logger
-
 import com.mongodb.casbah.Imports._
-import org.joda.time.DateTime
 import play.api.libs.json.{JsValue, Json}
+import java.util.UUID
+
+import scala.collection.mutable
 
 /**
   * Created by Pierre on 04/07/2016.
   */
+
 object MongoHelper {
 
   val logger : Logger = Logger.getLogger("MongoHelper Logger")
 
-  val mongoClient = MongoClient("localhost", 27030)
+  val mongoClient = MongoClient("localhost", 27040)
   val db = mongoClient("projects")
   val coll = db("projects")
 
@@ -26,35 +28,65 @@ object MongoHelper {
   def createProject (project : JsValue) : JsValue = {
 
     val doc = MongoDBObject(
+      "_id" -> UUID.randomUUID().toString,
       "name" -> project.\("name").as[String],
       "author" -> project.\("author").as[String],
-      "beginDate" -> project.\("beginDate").as[DateTime],
-      "endDate" -> project.\("endDate").as[DateTime]
+      "beginDate" -> project.\("beginDate").as[String],
+      "endDate" -> project.\("endDate").as[String]
     )
 
     coll.insert(doc)
     Json.parse(doc.toString)
   }
 
+  /**
+    * Update project in database
+    * @param project Project to update
+    * @return The project updated
+    */
   def updateProject (project : JsValue) : JsValue = {
-    // TODO
-    project
+    val query = MongoDBObject("_id" -> project.\("_id").as[String])
+    val update = MongoDBObject(
+      "name" -> project.\("name").as[String],
+      "author" -> project.\("author").as[String],
+      "beginDate" -> project.\("beginDate").as[String],
+      "endDate" -> project.\("endDate").as[String]
+    )
+    val result = coll.update( query, update )
+    Json.parse(result.toString)
   }
 
-  def deleteProject ( project : JsValue) : JsValue = {
-    // TODO
-    project
+  /**
+    * Delete project in database
+    * @param project Project to delete
+    * @return The project deleted
+    */
+  def deleteProject (project : JsValue) : JsValue = {
+    val query = MongoDBObject("_id" -> project.\("_id").as[String])
+    val result = coll.remove( query )
+    Json.parse(result.toString)
   }
 
+  /**
+    * Get the project matching with the specified id
+    * @param project a json containing the id of the searched project
+    * @return the project matching with the specified id
+    */
   def getProject (project : JsValue) : JsValue = {
-    // TODO
-    project
+    val query = MongoDBObject("_id" -> project.\("_id").as[String])
+    val result = coll.findOne(query)
+    Json.parse(result.getOrElse(DBObject("Project" -> "Empty")).toString)
   }
 
-  def getProjects (filters : JsValue) : JsValue = {
+  /**
+    * Return all projects
+    * @param filters fields to filter the result
+    * @return projects matching with the specified filters
+    */
+  def getProjects (filters : JsValue) : mutable.Set[JsValue] = {
+    val result : mutable.Set[JsValue] = mutable.Set[JsValue] ()
     val allDocs = coll.find()
-    println( allDocs )
-    Json.parse(allDocs.toString())
+    allDocs.foreach(doc => result += Json.parse(doc.toString))
+    result
   }
-
 }
