@@ -1,5 +1,7 @@
-import rx.lang.scala.Observable
-import services.ProjectsService
+import amqp.Functions
+import com.rabbitmq.client.Channel
+
+
 
 /**
   * Created by Pierre on 02/07/16.
@@ -8,15 +10,14 @@ object Main extends App {
 
   override def main(args: Array[String]) {
 
+    val connection = Functions.connect("localhost")
+    val channel : Channel = Functions.createChannel(connection)
 
-     val o : Observable[String] = ProjectsService.projects
-    o.subscribe(
-      n => println(n),
-      (ex : Throwable) => ex.printStackTrace(),
-      () => println("Completed")
-    )
-
-
+    // Get messages to manage projects
+    Functions.receive(channel, "projects", "direct", "create_project")
+    Functions.receive(channel, "projects", "direct", "update_project")
+    Functions.receive(channel, "projects", "direct", "delete_project")
+    Functions.receive(channel, "projects", "direct", "get_project")
+    Functions.receive(channel, "projects", "direct", "get_projects")
   }
-
 }
