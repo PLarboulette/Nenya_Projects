@@ -19,7 +19,6 @@ object MongoHelper {
   val db = mongoClient("projects")
   val coll = db("projects")
 
-
   /**
     * Insert new project
     * @param project the project to insert
@@ -72,10 +71,10 @@ object MongoHelper {
     * @param project a json containing the id of the searched project
     * @return the project matching with the specified id
     */
-  def getProject (project : JsValue) : JsValue = {
+  def getProject (project : JsValue) : Option[JsValue] = {
     val query = MongoDBObject("_id" -> project.\("_id").as[String])
     val result = coll.findOne(query)
-    Json.parse(result.getOrElse(DBObject("Project" -> "Empty")).toString)
+    if (result.nonEmpty) Some(Json.parse(result.get.toString)) else None
   }
 
   /**
@@ -83,7 +82,8 @@ object MongoHelper {
     * @param filters fields to filter the result
     * @return projects matching with the specified filters
     */
-  def getProjects (filters : JsValue) : mutable.Set[JsValue] = {
+  def getProjects (filters : Option[JsValue]) : mutable.Set[JsValue] = {
+    // TODO filters
     val result : mutable.Set[JsValue] = mutable.Set[JsValue] ()
     val allDocs = coll.find()
     allDocs.foreach(doc => result += Json.parse(doc.toString))

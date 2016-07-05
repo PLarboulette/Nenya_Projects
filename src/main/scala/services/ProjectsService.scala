@@ -52,7 +52,7 @@ object ProjectsService {
     */
   def getProjects (filters : JsValue) : mutable.Set[JsValue] = {
     logger.info("get_projects request / Data :" + filters)
-    MongoHelper.getProjects(filters)
+    MongoHelper.getProjects(Some(filters))
   }
 
   /**
@@ -60,7 +60,7 @@ object ProjectsService {
     * @param project a json containing the id of the searched project
     * @return the project matching with the specified id
     */
-  def getProject (project : JsValue) : JsValue = {
+  def getProject (project : JsValue) : Option[JsValue] = {
     logger.info("get_project request / Data :" + project)
     MongoHelper.getProject(project)
   }

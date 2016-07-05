@@ -23,7 +23,6 @@ object Functions {
   def connect(host: String): Connection = {
     val factory: ConnectionFactory = new ConnectionFactory()
     factory.setHost(host)
-
     factory.newConnection()
   }
 
@@ -65,7 +64,7 @@ object Functions {
           case "create_project" => ProjectsService.createProject(parsedMessage).toString()
           case " update_project" => ProjectsService.updateProject(parsedMessage).toString
           case "delete_project" => ProjectsService.deleteProject(parsedMessage).toString()
-          case "get_project" => ProjectsService.getProject(parsedMessage).toString()
+          case "get_project" => ProjectsService.getProject(parsedMessage).getOrElse("Empty").toString
           case "get_projects" => ProjectsService.getProjects(parsedMessage).toString()
           case "health_projects"  => ProjectMonitoring.health()
           case "metrics_projects"  => ProjectMonitoring.metrics()
